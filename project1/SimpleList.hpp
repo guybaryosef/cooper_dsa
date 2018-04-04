@@ -88,4 +88,5 @@ class SimpleList {
         virtual SimpleList & push(const T &) = 0;
         virtual T* pop() = 0;
 };
+
 #endif
