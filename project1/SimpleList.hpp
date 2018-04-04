@@ -43,19 +43,22 @@ class SimpleList {
 
         // Removes the node at the start of the list
         T* removeFromStart() {
-            if (tail == head)
-                return nullptr;
+            if (tail == head) {
+                return nullptr;     // the list is empty
+            }   
             else {
-                if (tail == head->next)
-                    tail = head;
                 Node* buf = head->next;
-                head->next = head->next->next;
+                if (tail == head->next) {
+                    tail = head;
+                    head->next = nullptr;
+                }
+                else
+                    head->next = head->next->next;
                 T* output = new T;
                 *output = buf->data;
                 delete(buf);
                 return output;
             }
-        }
 
     public:
         // Constructor allocates memory for a sentinel head node
