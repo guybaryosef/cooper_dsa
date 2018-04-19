@@ -127,57 +127,68 @@ int main() {
 // class defintions here if you wish.
 
 #include <array>
+#include <cmath>
 
-bool compare1 (const Data *first, const Data *second){
-  return (first->val1 < second->val1) ? true : false;
-}
-bool compare4 (const Data *first, const Data *second){
-return (first->val4 < second->val4) ? true : false;
-}
+#include <iterator>
 
+using namespace std;
 
 void sortDataList(list<Data *> &l, int field) {
   
   if (field == 1) {
-    l.sort(compare1);
+    /* An implementation of insertion sort, because this data is already
+       most sorted. */
+
+    /* I should also look into other sorting methods, maybe bubble sort,
+    that may be better here... */
+
+    for(list<Data *>::iterator i = next(l.begin()) ; i != l.end(); ++i) {
+        Data *k = *i;
+        list<Data *>::iterator j = i;
+        --j;
+        while( (*j)->val1 > k->val1) {
+            if (j == l.begin()) {
+              *(next(j)) = *j;
+              break;
+            }
+            *(next(j)) = *j;
+            --j;
+        }
+        *j = k;
+    }  
   }
-  else if (field == 2) {
-    array< list<Data *> , 10> buf;
+  else if (field == 2) {  
+    /* this is just crap, for now */
+
+    array<list<Data *>, 10> buf;
     
     list<Data *>::iterator it;;
-    for (int j = 0 ; j < 10 ; ++j) {
-      it  = l.begin();
-      
-      while (it != l.end()) {
-        if (j == 0)
-          buf[(*it)->val2 % 10 ].push_back(*it);
-        else
-          buf[ ( (*it)->val2 / (10*j) ) % 10 ].push_back(*it);
-        ++it;
-        l.pop_front();
-      }
+    for (int j = 0 ; j < 10 ; ++j) {    
+      for (it = l.begin() ; it != l.end() ; ++it) 
+        buf[ (int)( (*it)->val2 / pow(10,j) ) % 10 ].push_back(*it);
 
+      l.clear();
       for (int i = 0 ; i < 10 ; ++i) {
         l.splice(l.end(), buf[i]);
-        buf[i].erase(buf[i].begin(), buf[i].end());
+        buf[i].clear();
       }
     }
   }
   else if (field == 3) {
+    /* An implementation of counting sort that fits nicely here
+       because the splices at the end are constant time.     */
     array< list<Data *> , 127> buf;
     
-    list<Data *>::iterator it = l.begin();
-    while (it != l.end()) {
+    for (list<Data *>::iterator it = l.begin(); it != l.end() ; ++it)
       buf[(int)(*it)->val3 ].push_back(*it);
-      ++it;
-      l.pop_front();
-    }
 
+    l.clear();
     for (int i = 33 ; i < 127 ; ++i )
       l.splice(l.end(), buf[i]);
   }
   // field equals 4
   else {
-    l.sort(compare4);
+    /*  */
+    
   }
 }
