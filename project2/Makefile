@@ -6,9 +6,6 @@ all:
 
 base:
 	$(CC) -std=c++11 baseVersion.cpp
-
-base:
-	$(CC) -std=c++11 baseVersion.cpp
 	
 clean:
 	rm a.out
