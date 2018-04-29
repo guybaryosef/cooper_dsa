@@ -1,8 +1,12 @@
 CC=g++ #compiler
-F=baseVersion
+f=finalVersion
 
 all:
-	$(CC) -std=c++11 $(F).cpp
+	$(CC) -std=c++11 $(f).cpp
 
+base:
+	$(CC) -std=c++11 baseVersion.cpp
+	
 clean:
 	rm a.out
+	rm o*
