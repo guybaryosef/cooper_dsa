@@ -12,7 +12,6 @@
 #include <vector>
 #include <string>
 
-
 /*
  * hashTable class constructor.
  * Uses getPrime to choose a prime number at least as large as
@@ -39,8 +38,11 @@ int hashTable::insert(const std::string &key, void *pv) {
     
     int index = hash(key);
 
-    while (data[index].isOccupied) 
-        index = hash2(key, index);
+    int i = 0;
+    while (data[index].isOccupied) { 
+        ++i;
+        index = (index + i*hash2(key) ) % capacity;
+    }
     
     data[index].key = key;
     data[index].isOccupied = true;
@@ -71,7 +73,7 @@ bool hashTable::contains(const std::string &key) {
  * set the bool to true if the key is in the hash table,
  * and set the bool to false otherwise.
  */
-void * hashTable::getPointer(const std::string &key, bool *b) {
+void *hashTable::getPointer(const std::string &key, bool *b) {
     
     int index;
     if ((index = findPos(key)) == -1) {
@@ -135,25 +137,18 @@ int hashTable::hash(const std::string &key) {
     return hashVal;
 }
 
-#include <iostream>
 /*
  * The second hash function, which is used
  * to deal with double hashing.
  */
-int hashTable::hash2(const std::string &key, const int index) {
-    int hashVal = 0;
-
+int hashTable::hash2(const std::string &key) {
+    int keyval = 0;
     for (int i = 0 ;i < key.length() ; ++i)
-        hashVal = index*719*hashVal + key[i];
+        keyval += key[i];
 
-    hashVal %= capacity;
-    if (hashVal < 0)
-        hashVal += capacity;
+    int randPrime = 1543;
 
-    if (hashVal == index)   // make sure we get a new hash value
-        hashVal = (hashVal*index) % capacity;
-
-    return hashVal;
+    return randPrime - (keyval % randPrime);
 }
 
 
@@ -163,12 +158,14 @@ int hashTable::hash2(const std::string &key, const int index) {
  * The choice of a collision resolution will be double hashing.
  */
 int hashTable::findPos(const std::string &key) {
+    
     int index = hash(key);
-
+    int i = 0;
     while (data[index].isOccupied) {
+        ++i;
         if (data[index].key == key)
             return index;
-        index = hash2(key, index);
+        index = (index + i*hash2(key) ) % capacity;
     }
     return -1;
 }
@@ -181,7 +178,8 @@ int hashTable::findPos(const std::string &key) {
 bool hashTable::rehash() {
     std::vector<hashItem> temp;
     try {
-        temp.resize(getPrime(capacity+1));
+        capacity = getPrime(capacity*2);
+        temp.resize(capacity);
     }
     catch(...) {
         return false;
@@ -191,9 +189,12 @@ bool hashTable::rehash() {
         if (item.isOccupied && !item.isDeleted) {
             
             int index = hash(item.key);
-            while (temp[index].isOccupied) 
-                index = hash2(item.key, index);
-            
+            int i = 0;
+            while (temp[index].isOccupied) {
+                ++i; 
+                index = (index + i*hash2(item.key) ) % capacity;
+            }
+
             temp[index] = item;
         }
     }
@@ -207,13 +208,14 @@ bool hashTable::rehash() {
  * Uses a precomputed sequence of selected prime numbers.
  */
 unsigned int hashTable::getPrime(int size) {
-    const int primes[] = {98317, 196613, 393241, 786433, 1572869, 3145739,
+    const int primes[] = {3079, 6151, 12289, 24593, 49157, 
+                    98317, 196613, 393241, 786901, 1572869, 3145739,
                     6291469, 12582917, 25165843, 50331653, 100663319};
 
-    for (int i = 0 ; i < 8 ; ++i)
+    for (int i = 0 ; i < 15 ; ++i)
         if (size < primes[i])
             return primes[i];
 
-    // if size is larger than the first 8 primes of list, return largest possible hash table size
-    return primes[9]; 
+    // if size is larger than the first 15 primes of list, return largest possible hash table size
+    return primes[15]; 
 }

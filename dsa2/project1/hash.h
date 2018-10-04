@@ -91,7 +91,7 @@ class hashTable {
    * the double hashing collision resolution method.
    */
   int hash(const std::string &key);
-  int hash2(const std::string &key, const int index);
+  int hash2(const std::string &key);
 
   /*
    * Search for an item with the specified key.

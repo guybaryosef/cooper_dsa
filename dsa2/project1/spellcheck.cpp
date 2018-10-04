@@ -32,7 +32,7 @@ int main() {
 
     ////////////////////// LOADING DICTIONARY & REPORTING TIME ///////////////////////
     clock_t t1 = clock();
-    hashTable hTable(100000); /* initialize hashtable with a size of 100000 */
+    hashTable hTable(100); /* initialize hashtable with a size of 100000 */
 
     std::string buf;
     while (getline(dict, buf)) {
@@ -116,7 +116,15 @@ std::vector<std::string> parseString(const std::string &input) {
     bool inWord = false;
     int beg = 0;
     for (int i = 0 ; i < input.length() ; ++i) {
-        if (isalnum(input[i]) || input[i] == '-' || input[i] == '\'') {
+        
+        if (isdigit(input[i])) { /* ignore words (valid or not) that include digits */
+            while (i < input.length() && (isalnum(input[i]) || input[i] == '-' || input[i] == '\'') )
+                ++i;
+
+            inWord = false;
+        }
+        
+        if (isalpha(input[i]) || input[i] == '-' || input[i] == '\'') {
             if (!inWord) {
                 inWord = true;
                 beg = i;
