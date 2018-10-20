@@ -2,7 +2,7 @@
  * DSA II: Programming Assignment #1
  * By: Guy Bar Yosef
  * 
- * Implementation file for 'hash.h' and the hashTable class 
+ * Implementation file for 'hash.h' and its hashTable class 
  * 
  */
 
@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+
 
 /*
  * hashTable class constructor.
@@ -68,7 +69,7 @@ bool hashTable::contains(const std::string &key) {
 
 /*
  * Get the pointer associated with the specified key.
- * If the key does not exist in the hash table, return NULL.
+ * If the key does not exist in the hash table, return nullptr.
  * If an optional pointer to a bool is provided,
  * set the bool to true if the key is in the hash table,
  * and set the bool to false otherwise.
@@ -76,15 +77,13 @@ bool hashTable::contains(const std::string &key) {
 void *hashTable::getPointer(const std::string &key, bool *b) {
     
     int index;
-    if ((index = findPos(key)) == -1) {
-        if (b != NULL)
+    if ((index = findPos(key)) == -1 || data[index].isDeleted) {
+        if (b)
             *b = false;
-        return NULL;
+        return nullptr;
     }
-    else {
-        if (b != NULL)
-            *b = true;
-    }
+    if (b)
+        *b = true;
     return data[index].pv;
 }
 
@@ -97,7 +96,7 @@ void *hashTable::getPointer(const std::string &key, bool *b) {
 int hashTable::setPointer(const std::string &key, void *pv) {
     
     int index;
-    if ((index = findPos(key)) == -1)
+    if ((index = findPos(key)) == -1 || data[index].isDeleted)
         return 1;
 
     data[index].pv = pv;
@@ -155,7 +154,7 @@ int hashTable::hash2(const std::string &key) {
 /* 
  * Search for an item with the inputted 'key'.
  * Return the position if found, -1 otherwise.
- * The choice of a collision resolution will be double hashing.
+ * Collision resolution will be handled with double hashing.
  */
 int hashTable::findPos(const std::string &key) {
     
@@ -216,6 +215,7 @@ unsigned int hashTable::getPrime(int size) {
         if (size < primes[i])
             return primes[i];
 
-    // if size is larger than the first 15 primes of list, return largest possible hash table size
+    /* if size is larger than the first 15 primes of list,
+       return largest possible hash table size */
     return primes[15]; 
 }

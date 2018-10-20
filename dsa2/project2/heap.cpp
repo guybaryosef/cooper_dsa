@@ -17,13 +17,14 @@
  * and the mapping (hash table) based on the specified capacity.
  */
 heap::heap(int cap) : capacity(cap+1), filled(1) {
-    data.resize(cap+1); // 0th index will not be used for implementational reasons
+     /* 0th index will not be used for implementational reasons */
+    data.resize(cap+1);
     mapping = new hashTable(cap*2);
 }
 
 
 /* 
- * insert - Inserts a new node into the binary heap
+ * insert - Inserts a new node into the binary heap.
  *
  * Inserts a node with the specified id string, key,
  * and optionally a pointer. They key is used to
@@ -45,8 +46,9 @@ int heap::insert(const string &id, int key, void *pv) {
     data[filled].key = key;
     data[filled].pData = pv;
 
+    
     if (mapping->insert(id, &data[filled]) != 0)
-        throw "Unable to insert node to hashTable";
+        throw "Error in hashtable rehash.";
 
     percolateUp(filled);
     ++filled;
@@ -56,7 +58,7 @@ int heap::insert(const string &id, int key, void *pv) {
 
 
 /*
- * setKey - set the key of the specified node to the specified value
+ * setKey - set the key of the specified node to the specified value.
  * This function therefore acts as both 
  * an increaseKey and decreaseKey functions.
  *
@@ -65,14 +67,14 @@ int heap::insert(const string &id, int key, void *pv) {
  *   1 if a node with the given id does not exist
  */
 int heap::setKey(const string &id, int key) {
-    node *pn;
+    node *pn; /* pointer to node whose key we will update */
     if (!(pn = static_cast<node *> (mapping->getPointer(id))))
         return 1;
     
-    int cur_i = getPos(pn); /* index of the specified node */
-    data[cur_i].key = key;
+    int curPos = getPos(pn); /* index of the specified node */
+    data[curPos].key = key;
     
-    decidePercolation(cur_i);
+    decidePercolation(curPos);
 
     return 0;
 }
@@ -80,7 +82,7 @@ int heap::setKey(const string &id, int key) {
 
 /*
  * deleteMin - return the data associated with the smallest key
- *            and delete that node from the binary heap
+ *            and delete that node from the binary heap.
  *
  * If pId is supplied (i.e., it is not NULL), write to that address
  * the id of the node being deleted. If pKey is supplied, write to
@@ -92,25 +94,13 @@ int heap::setKey(const string &id, int key) {
  *   1 if the heap is empty
  */
 int heap::deleteMin(string *pId, int *pKey, void *ppData) {
-    if (filled == 1) /* empty heap */
+    if (filled < 2) /* empty heap */
         return 1;
     
     if (pId)
         *pId = data[1].id;
-    
-    if (pKey)
-        *pKey = data[1].key;
 
-    if (ppData)
-        ppData = data[1].pData;
-
-    mapping->remove(data[1].id);
-    data[1] = data[filled-1];
-    --filled;
-
-    percolateDown(1);
-
-    return 0;
+    return remove(data[1].id, pKey, ppData);
 }
 
 
@@ -126,25 +116,27 @@ int heap::deleteMin(string *pId, int *pKey, void *ppData) {
  *   1 if a node with the given id does not exist
  */
 int heap::remove(const string &id, int *pKey, void *ppData) {
-    node *pn;
+    node *pn;  /* pointer to node that will be removed */
     if (!(pn = static_cast<node *> (mapping->getPointer(id))))
         return 1;
     
     if (!mapping->remove(id))
-        throw "Unable to remove key.";
+        throw "Unable to remove key from private hash table.";
 
-    int cur_i = getPos(pn); /* index of the node that will be removed */
+    int curPos = getPos(pn); /* index of the node that will be removed */
 
     if (pKey)
-        *pKey = data[cur_i].key;
+        *pKey = data[curPos].key;
     if (ppData)
-        ppData = data[cur_i].pData;
-
-    data[cur_i] = data[filled];
+        ppData = data[curPos].pData;
     
     --filled;
-    decidePercolation(cur_i);
-    
+    if (curPos != filled && filled > 1) {
+        data[curPos] = data[filled];
+        mapping->setPointer(data[curPos].id, &data[curPos]);
+
+        decidePercolation(curPos);
+    }
     return 0;
 }
 
@@ -154,20 +146,24 @@ int heap::remove(const string &id, int *pKey, void *ppData) {
  * percolates up, so as to maintain the heap order property.
  * This function does not return anything.
  */
-void heap::percolateUp(int posCur) {
-    if (posCur == 1 || data[posCur].key >= data[posCur/2].key)
+void heap::percolateUp(int curPos) {
+
+    /* error check if we need to do upward perculation */
+    if (curPos == 1 || data[curPos].key >= data[curPos/2].key)
         return;
 
-    node hole = data[posCur];
+    /* perculate up using a hole, updating hash table each time */
+    node hole = data[curPos];
     do  {
-        data[posCur] = data[posCur/2];
-        mapping->setPointer(data[posCur].id, &data[posCur]);
+        data[curPos] = data[curPos/2];
+        mapping->setPointer(data[curPos].id, &data[curPos]);
         
-        posCur /= 2;
-    } while (posCur != 1 && hole.key < data[posCur/2].key);
+        curPos /= 2;
+    } while (curPos != 1 && hole.key < data[curPos/2].key);
     
-    data[posCur] = hole;
-    mapping->setPointer(data[posCur].id, &data[posCur]);
+    /* replace hole with actual node at end of perculation */
+    data[curPos] = hole;
+    mapping->setPointer(data[curPos].id, &data[curPos]);
 }
 
 
@@ -176,47 +172,52 @@ void heap::percolateUp(int posCur) {
  * percolates down, so as to maintain the heap order property.
  * This function does not return anything.
  */
-void heap::percolateDown(int posCur) {
+void heap::percolateDown(int curPos) {
 
-    int min_child; /* the index of the child of the node indexed by posCur with the smaller key */
-    if (posCur*2 + 1 < filled)
-        min_child = (data[posCur*2].key < data[posCur*2 + 1].key) ? posCur*2 : posCur*2 + 1;
-    else if (posCur*2 < filled)
-        min_child = posCur*2;
-    else  /* posCur is a leaf */
+    /* the index of the child with the smaller key, of node indexed by curPos */
+    int min_child; 
+
+    /* error check to see if we need downward perculation */
+    if (2*curPos+1 < filled)
+        min_child = (data[2*curPos].key < data[2*curPos+1].key) ? 2*curPos : 2*curPos+1;
+    else if (2*curPos < filled)
+        min_child = curPos*2;
+    else  /* curPos is a leaf */
         return;
     
-    if (data[min_child].key >= data[posCur].key)
+    if (data[min_child].key >= data[curPos].key)
         return;
 
-    node hole = data[posCur];
+    /* downward perculation using a hole, updating the hash table each time */
+    node hole = data[curPos]; 
     do {
-        data[posCur] = data[min_child];
-        mapping->setPointer(data[posCur].id, &data[posCur]);
+        data[curPos] = data[min_child];
+        mapping->setPointer(data[curPos].id, &data[curPos]);
 
-        posCur = min_child;
+        curPos = min_child;
 
-        if (posCur*2 + 1 < filled)
-            min_child = (data[posCur*2].key < data[posCur*2 + 1].key) ? posCur*2 : posCur*2 + 1;
-        else if (posCur*2 < filled)
-            min_child = posCur*2;
-        else  /* posCur is a leaf */
+        if (2*curPos+1 < filled)
+            min_child = (data[2*curPos].key < data[2*curPos+1].key) ? 2*curPos : 2*curPos+1;
+        else if (2*curPos < filled)
+            min_child = curPos*2;
+        else  /* curPos is a leaf */
             break;
     } while (hole.key > data[min_child].key);
 
-    data[posCur] = hole;
-    mapping->setPointer(data[posCur].id, &data[posCur]);
+    /* replace hole with actual node at end of perculation */
+    data[curPos] = hole;
+    mapping->setPointer(data[curPos].id, &data[curPos]);
 }
 
 /* 
  * Decides whether to percolate up or down.
  * As there are error checking for each, it calls both
- * and at most one will do any percolating.
+ * and at most one will do any actual percolating.
  * This function returns nothing.
  */
-void heap::decidePercolation(int posCur) {
-    percolateUp(posCur);
-    percolateDown(posCur);
+void heap::decidePercolation(int curPos) {
+    percolateUp(curPos);
+    percolateDown(curPos);
 }
 
 

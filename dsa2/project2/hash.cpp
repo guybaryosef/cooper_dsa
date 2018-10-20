@@ -75,14 +75,14 @@ bool hashTable::contains(const std::string &key) {
  */
 void *hashTable::getPointer(const std::string &key, bool *b) {
     
-    int index;
-    if ((index = findPos(key)) == -1) {
-        if (b != nullptr)
+    int index = findPos(key);
+    if (index == -1) {
+        if (b)
             *b = false;
         return nullptr;
     }
     else {
-        if (b != nullptr)
+        if (b)
             *b = true;
     }
     return data[index].pv;
@@ -95,9 +95,8 @@ void *hashTable::getPointer(const std::string &key, bool *b) {
  * 1 if the key does not exist in the hash table.
  */
 int hashTable::setPointer(const std::string &key, void *pv) {
-    
-    int index;
-    if ((index = findPos(key)) == -1)
+    int index = findPos(key);
+    if (index  == -1)
         return 1;
 
     data[index].pv = pv;
@@ -155,7 +154,7 @@ int hashTable::hash2(const std::string &key) {
 /* 
  * Search for an item with the inputted 'key'.
  * Return the position if found, -1 otherwise.
- * The choice of a collision resolution will be double hashing.
+ * Collisions are resolved using double hashing.
  */
 int hashTable::findPos(const std::string &key) {
     

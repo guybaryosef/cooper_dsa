@@ -31,7 +31,7 @@ class hashTable {
    * 1 if key already exists in hash table,
    * 2 if rehash fails.
    */
-  int insert(const std::string &key, void *pv = NULL);
+  int insert(const std::string &key, void *pv = nullptr);
 
   /*
    * Check if the specified key is in the hash table.
@@ -41,12 +41,12 @@ class hashTable {
 
   /*
    * Get the pointer associated with the specified key.
-   * If the key does not exist in the hash table, return NULL.
+   * If the key does not exist in the hash table, return nullptr.
    * If an optional pointer to a bool is provided,
    * set the bool to true if the key is in the hash table,
    * and set the bool to false otherwise.
    */
-  void *getPointer(const std::string &key, bool *b = NULL);
+  void *getPointer(const std::string &key, bool *b = nullptr);
 
   /* Set the pointer associated with the specified key.
    * Returns 0 on success,
@@ -69,11 +69,11 @@ class hashTable {
    *              and the other fields are meaningless.
    * isDeleted - if true, this item has been lazily deleted.
    * pv - a pointer related to the key;
-   * NULL if no pointer was provided to insert.
+   * nullptr if no pointer was provided to insert.
    */
   class hashItem {
   public:
-    hashItem() : isOccupied(false), isDeleted(false), pv(NULL) {};
+    hashItem() : isOccupied(false), isDeleted(false), pv(nullptr) {};
 
     std::string key;
     bool isOccupied;

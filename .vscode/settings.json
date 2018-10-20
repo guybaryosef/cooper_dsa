@@ -35,5 +35,9 @@
         "tuple": "cpp",
         "typeinfo": "cpp",
         "algorithm": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "implementational"
+    ],
+    "C_Cpp.errorSquiggles": "Disabled"
 }
