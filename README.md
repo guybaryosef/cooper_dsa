@@ -1,4 +1,4 @@
-# Data Structures and Algorithms Courses in The Cooper Union
+## Data Structures and Algorithms Courses in The Cooper Union
 
 ## DSA I
 ### Project 1
