@@ -9,4 +9,11 @@ A program that sorts the nodes of a linked list as fast as possible. There are s
 
 ## DSA II
 ### Project 1
-Create a hash Table class and use it in a spellchecker program.
+Create a hash table class and use it in a spellchecker program.
+
+### Project 2
+Create a binary heap class using the hash table from project 1.
+
+### Project 3
+Create a graph class that is able to efficiently run Dijkstra's Algorithm.
+Uses both the hash table and the binary heap classes from previous projects.
