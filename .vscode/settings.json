@@ -34,7 +34,8 @@
         "streambuf": "cpp",
         "tuple": "cpp",
         "typeinfo": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "deque": "cpp"
     },
     "cSpell.words": [
         "implementational"

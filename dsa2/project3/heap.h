@@ -42,12 +42,18 @@ class heap {
 
     public:
         /* 
-        * heap - The constructor allocates space for the nodes of the heap
-        * and the mapping (hash table) based on the specified capacity.
-        */
+         * heap - The constructor allocates space for the nodes of the heap
+         * and the mapping (hash table) based on the specified capacity.
+         */
         heap(int cap);
 
-        
+
+        /*
+         * heap destructor - frees the dynamically allocated hash table.
+         */
+        ~heap();
+
+
         /* 
          * insert - Inserts a new node into the binary heap
          *

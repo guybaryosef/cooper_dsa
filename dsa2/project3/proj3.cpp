@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -30,6 +31,7 @@ int main() {
     std::vector<std::vector<string>> output;
     implementDijkstra(graph, output);
     
+
     outputToFile(output);
     return 0;
 }
@@ -81,17 +83,21 @@ void outputToFile(std::vector<std::vector<string>> &output) {
 void implementDijkstra(Graph &graph, std::vector<std::vector<std::string>> &ans) {
     
     std::string source;
+    double time;
     do {
         std::cout << "Enter a valid vertex id for the starting vertex: ";
         std::cin >> source;
 
         try {
-            ans = graph.DijkstraAlgo(source);
+            ans = graph.DijkstraAlgo(source, time);
         }
         catch(std::string exception) {
             std::cerr << exception << std::endl;
         }
     } while (ans.empty());
+
+    std::cout << std::fixed << std::setprecision(2) <<
+        "Total time (in seconds) to apply Dijkstra's algorithm: " << time << std::endl;
 }
 
 

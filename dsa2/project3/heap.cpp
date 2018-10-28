@@ -23,6 +23,14 @@ heap::heap(int cap) : capacity(cap+1), filled(1) {
 }
 
 
+/*
+ * heap destructor - frees the dynamically allocated hash table.
+ */
+heap::~heap() {
+    delete mapping;
+}
+
+
 /* 
  * insert - Inserts a new node into the binary heap.
  *

@@ -92,7 +92,7 @@ public:
      * is the same as the order of nodes that were added to
      * the graph.
      */
-    std::vector<std::vector<std::string>> DijkstraAlgo(const std::string &start) const;
+    std::vector<std::vector<std::string>> DijkstraAlgo(const std::string &start, double &time) const;
 
 
     /*

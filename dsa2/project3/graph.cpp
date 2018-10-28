@@ -6,7 +6,7 @@
  * 
  */
 
-#include <limits.h>
+#include <sys/times.h>
 
 #include "graph.h"
 #include "heap.h"
@@ -33,14 +33,16 @@ Graph::Graph() :
  * is the same as the order of nodes that were added to
  * the graph.
  */
-std::vector<std::vector<std::string>> Graph::DijkstraAlgo(const std::string &source) const {
+std::vector<std::vector<std::string>> Graph::DijkstraAlgo(const std::string &source, double &time) const {
     Node *src = (Node *)inGraph(source); /* source node */
 
 
     /* confirm valid source node */
     if (!src)
-        throw "Invalid source.";
+        throw (string)"Invalid source.";
 
+    clock_t beg_time = clock(); /* beginning time */
+    
     /* initialize heap with starting values */
     heap myHeap(nodes.size());
     for(auto it = nodes.begin() ; it != nodes.end() ; ++it)
@@ -85,6 +87,9 @@ std::vector<std::vector<std::string>> Graph::DijkstraAlgo(const std::string &sou
         ans.push_back( {node.name, to_string(node.dv), cur_path} );
     }
 
+    clock_t end_time = clock(); /* beginning time */
+
+    time = ((double)(end_time - beg_time)) / CLOCKS_PER_SEC;
     return ans;
 }
 
