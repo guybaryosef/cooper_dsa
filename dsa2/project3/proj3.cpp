@@ -91,7 +91,7 @@ void implementDijkstra(Graph &graph, std::vector<std::vector<std::string>> &ans)
         try {
             ans = graph.DijkstraAlgo(source, time);
         }
-        catch(std::string exception) {
+        catch(const char *exception) {
             std::cerr << exception << std::endl;
         }
     } while (ans.empty());

@@ -7,6 +7,7 @@
  */
 
 #include <sys/times.h>
+#include <climits>
 
 #include "graph.h"
 #include "heap.h"
@@ -33,33 +34,36 @@ Graph::Graph() :
  * is the same as the order of nodes that were added to
  * the graph.
  */
-std::vector<std::vector<std::string>> Graph::DijkstraAlgo(const std::string &source, double &time) const {
+std::vector<std::vector<std::string>> Graph::DijkstraAlgo
+                    (const std::string &source, double &time) const {
+    
     Node *src = (Node *)inGraph(source); /* source node */
-
 
     /* confirm valid source node */
     if (!src)
-        throw (string)"Invalid source.";
+        throw "Invalid source.";
 
     clock_t beg_time = clock(); /* beginning time */
     
-    /* initialize heap with starting values */
+    /* initialize heap with max possible value (as it is non-resizable),
+       yet there is no reason to add any values to it besides the source. */
     heap myHeap(nodes.size());
-    for(auto it = nodes.begin() ; it != nodes.end() ; ++it)
-        myHeap.insert((*it).name, (*it).dv, inGraph((*it).name));
-    
-    src->dv = 0;
-    myHeap.setKey(source, 0); /* update source distance */
+    src->dv = 0;  /* update source distance to 0 */
+    myHeap.insert(source, 0, src); 
 
     /* go through each node in heap, in order of minimum distance */
     int cur_dist;
     Node *cur_pointer;
     while (myHeap.deleteMin( nullptr, &cur_dist, (void**) &cur_pointer) != 1) {
-        
+
         cur_pointer->known = true; /* update known status of current node */
 
         /* go through current node's adjaceny list, updating its neighbors */
-        for (auto edge : cur_pointer->adjList) {
+        for (auto &edge : cur_pointer->adjList) {
+
+            if (edge.destination->dv == INT_MAX) /*if new edge, add it to heap */
+                myHeap.insert(edge.destination->name, INT_MAX, edge.destination);
+            
             /* if new shortest path found, update prev pointer and distances */
             if (!edge.destination->known && cur_dist + edge.cost < edge.destination->dv) {
                 edge.destination->pv = cur_pointer;
@@ -73,23 +77,27 @@ std::vector<std::vector<std::string>> Graph::DijkstraAlgo(const std::string &sou
 
     /* order ans in the same order as the list of graph nodes */    
     for (auto node : nodes) {
-
-        /* find the path to current node, with correct format */
-        std::string cur_path; 
-        Node *buf = &node;
-        do {
-            cur_path.insert(0, buf->name + ", ");
-            buf = buf->pv;
-        } while (buf);
-        cur_path.insert(0, "[");
-        cur_path.replace(cur_path.length()-2, 2, "]");
-    
-        ans.push_back( {node.name, to_string(node.dv), cur_path} );
+        if (node.dv == INT_MAX) {
+            ans.push_back({node.name, "NO", "PATH"});
+        }
+        else{
+            /* find the path to current node, with correct format */
+            std::string cur_path; 
+            Node *buf = &node;
+            do {
+                cur_path.insert(0, buf->name + ", ");
+                buf = buf->pv;
+            } while (buf);
+            cur_path.insert(0, "[");
+            cur_path.replace(cur_path.length()-2, 2, "]");
+        
+            ans.push_back( {node.name, to_string(node.dv), cur_path} );
+        }
     }
 
     clock_t end_time = clock(); /* beginning time */
-
     time = ((double)(end_time - beg_time)) / CLOCKS_PER_SEC;
+
     return ans;
 }
 
@@ -131,6 +139,6 @@ void Graph::addNodes(std::string &n1, std::string &n2, int w) {
     }
 
     /* add an edge fron n1 to node n2 */
-    Node *cur_node = (Node *) inGraph(n1);
+    Node *cur_node = (Node *)inGraph(n1);
     cur_node->adjList.push_back(Edge(w, (Node *)inGraph(n2)));
 }
