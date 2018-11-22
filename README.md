@@ -17,3 +17,6 @@ Create a binary heap class using the hash table from project 1.
 ### Project 3
 Create a graph class that is able to efficiently run Dijkstra's Algorithm.
 Uses both the hash table and the binary heap classes from previous projects.
+
+### Project 4
+A DP programming question from 1998's regional ACM Programming Contest.

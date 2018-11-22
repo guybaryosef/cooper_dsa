@@ -3,9 +3,6 @@
  * By: Guy Bar Yosef
  * 
  * Dynamic Programming Assignment
- * 
- * Run as:
- *  $ ++ 
  */
 
 
