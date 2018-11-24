@@ -25,6 +25,7 @@ void runDP(const std::string &a, const std::string &b,
                 const std::string &c, std::string &response);
 void cleanMatrix();
 
+
 int main() {
     
     std::ifstream input;
@@ -37,9 +38,10 @@ int main() {
         merged.erase(); response.erase();
 
         input >> str1 >> str2 >> merged;
-        if (!str1.empty() && !str2.empty() && !merged.empty())
+        if (!str1.empty() && !str2.empty() && !merged.empty()) {
             runDP(str1, str2, merged, response);
-        output << response << std::endl;
+            output << response << std::endl;
+        }
     }
     return 0;
 }
@@ -58,8 +60,8 @@ void preprocess(std::ifstream &input, std::ofstream &output) {
 
     input.open(input_file_name);
     while (input.fail()) {
-        std::cout << "Invalid file name." << std::endl;
-        std::cout << "Please enter the name of a valid input file: " << std::endl;
+        std::cout << "Invalid file name.\n" <<
+                "Please enter the name of a valid input file: " << std::endl;
     
         std::cin >> input_file_name;
         input.open(input_file_name);
@@ -73,8 +75,8 @@ void preprocess(std::ifstream &input, std::ofstream &output) {
 
     output.open(output_file_name);
     while (output.fail()) {
-        std::cout << "Invalid file name." << std::endl;
-        std::cout << "Please enter the name of a valid output file: " << std::endl;
+        std::cout << "Invalid file name.\n" <<
+                "Please enter the name of a valid output file: " << std::endl;
     
         std::cin >> output_file_name;
         output.open(output_file_name);
@@ -130,20 +132,19 @@ void runDP(const std::string &a, const std::string &b,
         response = "*** NOT A MERGE ***";
     else {
         response = c;
-        int cur_len = c.length() - 2;
+        int cur_len = c.length()-1;
         --i; --j;
 
-        while (cur_len >= 0) {
+        while (--cur_len >= 0) {
             if ( i > 0 && dpMat[i-1][j] == cur_len)
                 --i;
             else {
-                response[cur_len+1] = toupper(response[cur_len+1]);
                 --j;
+                response[cur_len+1] = toupper(response[cur_len+1]);
             }
-            --cur_len;
         }
 
-        if (dpMat[i][j] == cur_len + 1) /* for the first letter */
-            response[cur_len+1] = toupper(response[cur_len+1]);
+        if (i == 0 && j == 1) /* check capitalization condition for the first letter */
+            response[0] = toupper(response[0]);
     }
 }
