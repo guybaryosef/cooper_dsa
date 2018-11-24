@@ -3,6 +3,9 @@
  * By: Guy Bar Yosef
  * 
  * Dynamic Programming Assignment
+
+debug: proj4_test.cpp
+	$(CC) proj4_test.cpp -g -o debug_dp_project
  */
 
 
@@ -14,7 +17,7 @@
 
 
 /* matrix declared as global so as not to to overflow the stack */
-int dpMat[MAX_STR_LEN+1][MAX_STR_LEN+1];
+int dpMat[MAX_STR_LEN+2][MAX_STR_LEN+2];
 
 
 void preprocess(std::ifstream &input, std::ofstream &output);
@@ -31,11 +34,13 @@ int main() {
     /* run through inputs, solving the dp question */
     std::string str1, str2, merged, response;
     while (input.good()) {
+        merged.erase(); response.erase();
+
         input >> str1 >> str2 >> merged;
-        runDP(str1, str2, merged, response);
+        if (!str1.empty() && !str2.empty() && !merged.empty())
+            runDP(str1, str2, merged, response);
         output << response << std::endl;
     }
-
     return 0;
 }
 
@@ -94,6 +99,12 @@ void clearMatrix() {
  */
 void runDP(const std::string &a, const std::string &b, 
                 const std::string &c, std::string &response) {
+
+    if (a.length() + b.length() != c.length()) {
+        response = "*** NOT A MERGE ***";
+        return;
+    }
+    
     clearMatrix();
 
     if (a[0] == c[0])
